@@ -37,6 +37,11 @@ def add_new_task(description, status = 'todo'):
 def get_time():
     return datetime.now().isoformat()
 
+def list_tasks():
+    tasks = read_tasks(TASK_FILE_NAME)
+    for task in tasks:
+        print(f"Task id:{task["id"]}, description: '{task["desc"]}', status: {task['status']}")
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     args = sys.argv[1:]
@@ -47,6 +52,7 @@ if __name__ == '__main__':
             print("After 'add' command you should specify task message")
             print("Example: add 'Visit grandma'")
             print("Notice you should add quotes at start and end of the message")
-
+    elif args[0] == 'list':
+        list_tasks()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
