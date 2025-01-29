@@ -34,6 +34,17 @@ def add_new_task(description, status = 'todo'):
     save_to_file(tasks)
     print(f"Task added successfully (ID: {new_task['id']})")
 
+def update_task(index, new_desc):
+    tasks = read_tasks(TASK_FILE_NAME)
+    task = next((task for task in tasks if task['id'] == index), None)
+    if task:
+        task['desc'] = new_desc
+        task['updatedAt'] = get_time()
+        print(f"Task updated successfully (ID: {index})")
+        save_to_file(tasks)
+    else:
+        print(f"There are no task with ID {index}")
+
 def get_time():
     return datetime.now().isoformat()
 
@@ -54,5 +65,15 @@ if __name__ == '__main__':
             print("Notice you should add quotes at start and end of the message")
     elif args[0] == 'list':
         list_tasks()
+    elif args[0] == 'update':
+        try:
+            index = int(args[1])
+            description = args[2]
+            update_task(index, description)
+        except ValueError:
+            print("Error: ID must be a number.")
+        except IndexError:
+            print("After 'update' command you should specify id for desired task and updated task message")
+            print("Example: update 1 'Visit grandma and grandfather'")
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
