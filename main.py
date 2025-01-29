@@ -45,6 +45,17 @@ def update_task(index, new_desc):
     else:
         print(f"There are no task with ID {index}")
 
+def delete_task(index):
+    tasks = read_tasks(TASK_FILE_NAME)
+    task = next((task for task in tasks if task['id'] == index), None)
+    if task:
+        tasks.remove(task)
+        print(f"Task removed successfully (ID: {index})")
+        save_to_file(tasks)
+    else:
+        print(f"There are no task with ID {index}")
+
+
 def get_time():
     return datetime.now().isoformat()
 
@@ -75,5 +86,15 @@ if __name__ == '__main__':
         except IndexError:
             print("After 'update' command you should specify id for desired task and updated task message")
             print("Example: update 1 'Visit grandma and grandfather'")
+    elif args[0] == 'delete':
+        try:
+            index = int(args[1])
+            delete_task(index)
+        except ValueError:
+            print("Error: ID must be a number.")
+        except IndexError:
+            print("After 'delete' command you should specify id for desired task")
+            print("Example: delete 1")
+
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
