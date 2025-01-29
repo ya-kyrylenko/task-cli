@@ -19,12 +19,15 @@ def read_tasks(file_name):
     else:
         return []
 
+def get_next_id(tasks):
+    return max((task["id"] for task in tasks), default=0) + 1
+
 def add_new_task(description, status = 'todo'):
     tasks = read_tasks(TASK_FILE_NAME)
     date_time = get_time()
 
     new_task = {
-        'id': len(tasks) + 1,
+        'id': get_next_id(tasks),
         'desc': description,
         'status': status,
         'createdAt': date_time,
@@ -54,7 +57,6 @@ def delete_task(index):
         save_to_file(tasks)
     else:
         print(f"There are no task with ID {index}")
-
 
 def get_time():
     return datetime.now().isoformat()
@@ -95,6 +97,5 @@ if __name__ == '__main__':
         except IndexError:
             print("After 'delete' command you should specify id for desired task")
             print("Example: delete 1")
-
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
