@@ -22,8 +22,7 @@ def read_tasks(file_name):
 def get_next_id(tasks):
     return max((task["id"] for task in tasks), default=0) + 1
 
-def add_new_task(description, status = 'todo'):
-    tasks = read_tasks(TASK_FILE_NAME)
+def add_new_task(tasks, description, status = 'todo'):
     date_time = get_time()
 
     new_task = {
@@ -37,9 +36,8 @@ def add_new_task(description, status = 'todo'):
     save_to_file(tasks)
     print(f"Task added successfully (ID: {new_task['id']})")
 
-def update_task(id, new_desc):
-    tasks = read_tasks(TASK_FILE_NAME)
-    task = next((task for task in tasks if task['id'] == id), None)
+def update_task(tasks, id, new_desc):
+    task = _find_task_by_id(tasks, id)
     if task:
         task['desc'] = new_desc
         task['updatedAt'] = get_time()
@@ -48,9 +46,8 @@ def update_task(id, new_desc):
     else:
         _no_id_notice(id)
 
-def delete_task(id):
-    tasks = read_tasks(TASK_FILE_NAME)
-    task = next((task for task in tasks if task['id'] == id), None)
+def delete_task(tasks, id):
+    task = _find_task_by_id(tasks, id)
     if task:
         tasks.remove(task)
         print(f"Task removed successfully (ID: {id})")
@@ -58,15 +55,17 @@ def delete_task(id):
     else:
         _no_id_notice(id)
 
-def change_status(status, id):
-    tasks = read_tasks(TASK_FILE_NAME)
-    task = next((task for task in tasks if task['id'] == id), None)
+def change_status(tasks, status, id):
+    task = _find_task_by_id(tasks, id)
     if task:
         task['status'] = status
         print(f'Task (ID: {id}) changed status to "{status}" successfully')
         save_to_file(tasks)
     else:
         _no_id_notice(id)
+
+def _find_task_by_id(tasks, id):
+    return next((task for task in tasks if task['id'] == id), None)
 
 def get_time():
     return datetime.now().isoformat()
@@ -77,8 +76,7 @@ def _no_id_notice(id):
 def _number_notice():
     print("Error: ID must be a number.")
 
-def list_tasks(status = None):
-    tasks = read_tasks(TASK_FILE_NAME)
+def list_tasks(tasks, status = None):
     statuses = ['todo', 'in-progress', 'done']
     if status and status in statuses:
         tasks = [task for task in tasks if task["status"] == status]
@@ -91,9 +89,11 @@ def list_tasks(status = None):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     args = sys.argv[1:]
+    tasks = read_tasks(TASK_FILE_NAME)
     if args[0] == 'add':
         try:
-            add_new_task(args[1])
+            task_message = args[1]
+            add_new_task(tasks, task_message)
         except IndexError:
             print("After 'add' command you should specify task message")
             print("Example: add 'Visit grandma'")
@@ -101,14 +101,14 @@ if __name__ == '__main__':
     elif args[0] == 'list':
         if len(args) > 1:
             status = args[1]
-            list_tasks(status)
+            list_tasks(tasks, status)
         else:
-            list_tasks()
+            list_tasks(tasks)
     elif args[0] == 'update':
         try:
             index = int(args[1])
             description = args[2]
-            update_task(index, description)
+            update_task(tasks, index, description)
         except ValueError:
             print("Error: ID must be a number.")
         except IndexError:
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     elif args[0] == 'delete':
         try:
             index = int(args[1])
-            delete_task(index)
+            delete_task(tasks, index)
         except ValueError:
             _number_notice()
         except IndexError:
@@ -127,7 +127,7 @@ if __name__ == '__main__':
         try:
             _, _, status = args[0].partition('-')
             id = int(args[1])
-            change_status(status, id)
+            change_status(tasks, status, id)
         except IndexError:
             print("After 'mark-in-progress' or 'mark-done' commands you should specify desired id")
             print('Example: mark-done 2')
