@@ -37,29 +37,45 @@ def add_new_task(description, status = 'todo'):
     save_to_file(tasks)
     print(f"Task added successfully (ID: {new_task['id']})")
 
-def update_task(index, new_desc):
+def update_task(id, new_desc):
     tasks = read_tasks(TASK_FILE_NAME)
-    task = next((task for task in tasks if task['id'] == index), None)
+    task = next((task for task in tasks if task['id'] == id), None)
     if task:
         task['desc'] = new_desc
         task['updatedAt'] = get_time()
-        print(f"Task updated successfully (ID: {index})")
+        print(f"Task updated successfully (ID: {id})")
         save_to_file(tasks)
     else:
-        print(f"There are no task with ID {index}")
+        _no_id_notice(id)
 
-def delete_task(index):
+def delete_task(id):
     tasks = read_tasks(TASK_FILE_NAME)
-    task = next((task for task in tasks if task['id'] == index), None)
+    task = next((task for task in tasks if task['id'] == id), None)
     if task:
         tasks.remove(task)
-        print(f"Task removed successfully (ID: {index})")
+        print(f"Task removed successfully (ID: {id})")
         save_to_file(tasks)
     else:
-        print(f"There are no task with ID {index}")
+        _no_id_notice(id)
+
+def change_status(status, id):
+    tasks = read_tasks(TASK_FILE_NAME)
+    task = next((task for task in tasks if task['id'] == id), None)
+    if task:
+        task['status'] = status
+        print(f'Task (ID: {id}) changed status to "{status}" successfully')
+        save_to_file(tasks)
+    else:
+        _no_id_notice(id)
 
 def get_time():
     return datetime.now().isoformat()
+
+def _no_id_notice(id):
+    print(f"There are no task with ID {id}")
+
+def _number_notice():
+    print("Error: ID must be a number.")
 
 def list_tasks():
     tasks = read_tasks(TASK_FILE_NAME)
@@ -93,9 +109,19 @@ if __name__ == '__main__':
             index = int(args[1])
             delete_task(index)
         except ValueError:
-            print("Error: ID must be a number.")
+            _number_notice()
         except IndexError:
             print("After 'delete' command you should specify id for desired task")
             print("Example: delete 1")
+    elif args[0] in ['mark-in-progress', 'mark-done']:
+        try:
+            _, _, status = args[0].partition('-')
+            id = int(args[1])
+            change_status(status, id)
+        except IndexError:
+            print("After 'mark-in-progress' or 'mark-done' commands you should specify desired id")
+            print('Example: mark-done 2')
+        except ValueError:
+            _number_notice()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
