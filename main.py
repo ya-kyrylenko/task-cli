@@ -77,8 +77,14 @@ def _no_id_notice(id):
 def _number_notice():
     print("Error: ID must be a number.")
 
-def list_tasks():
+def list_tasks(status = None):
     tasks = read_tasks(TASK_FILE_NAME)
+    statuses = ['todo', 'in-progress', 'done']
+    if status and status in statuses:
+        tasks = [task for task in tasks if task["status"] == status]
+    elif status:
+        print(f"Status should match one of this: {statuses}")
+        exit()
     for task in tasks:
         print(f"Task id:{task["id"]}, description: '{task["desc"]}', status: {task['status']}")
 
@@ -93,7 +99,11 @@ if __name__ == '__main__':
             print("Example: add 'Visit grandma'")
             print("Notice you should add quotes at start and end of the message")
     elif args[0] == 'list':
-        list_tasks()
+        if len(args) > 1:
+            status = args[1]
+            list_tasks(status)
+        else:
+            list_tasks()
     elif args[0] == 'update':
         try:
             index = int(args[1])
