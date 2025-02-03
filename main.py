@@ -7,7 +7,7 @@ from datetime import datetime
 
 TASK_FILE_NAME = 'tasks.json'
 
-def save_to_file(content):
+def _save_to_file(content):
     with open(TASK_FILE_NAME, 'w') as out_file:
         json.dump(content, out_file, indent=4)
 
@@ -19,30 +19,30 @@ def read_tasks(file_name):
     else:
         return []
 
-def get_next_id(tasks):
+def _get_next_id(tasks):
     return max((task["id"] for task in tasks), default=0) + 1
 
 def add_new_task(tasks, description, status = 'todo'):
-    date_time = get_time()
+    date_time = _get_time()
 
     new_task = {
-        'id': get_next_id(tasks),
+        'id': _get_next_id(tasks),
         'desc': description,
         'status': status,
         'createdAt': date_time,
         'updatedAt': date_time
     }
     tasks.append(new_task)
-    save_to_file(tasks)
+    _save_to_file(tasks)
     print(f"Task added successfully (ID: {new_task['id']})")
 
 def update_task(tasks, id, new_desc):
     task = _find_task_by_id(tasks, id)
     if task:
         task['desc'] = new_desc
-        task['updatedAt'] = get_time()
+        task['updatedAt'] = _get_time()
         print(f"Task updated successfully (ID: {id})")
-        save_to_file(tasks)
+        _save_to_file(tasks)
     else:
         _no_id_notice(id)
 
@@ -51,7 +51,7 @@ def delete_task(tasks, id):
     if task:
         tasks.remove(task)
         print(f"Task removed successfully (ID: {id})")
-        save_to_file(tasks)
+        _save_to_file(tasks)
     else:
         _no_id_notice(id)
 
@@ -60,14 +60,14 @@ def change_status(tasks, status, id):
     if task:
         task['status'] = status
         print(f'Task (ID: {id}) changed status to "{status}" successfully')
-        save_to_file(tasks)
+        _save_to_file(tasks)
     else:
         _no_id_notice(id)
 
 def _find_task_by_id(tasks, id):
     return next((task for task in tasks if task['id'] == id), None)
 
-def get_time():
+def _get_time():
     return datetime.now().isoformat()
 
 def _no_id_notice(id):
