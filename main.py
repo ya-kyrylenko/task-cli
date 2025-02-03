@@ -86,6 +86,10 @@ def list_tasks(tasks, status = None):
     for task in tasks:
         print(f"Task id:{task["id"]}, description: '{task["desc"]}', status: {task['status']}")
 
+def clear_tasks():
+    _save_to_file([])
+    print("Tasks file cleared")
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     args = sys.argv[1:]
@@ -133,5 +137,7 @@ if __name__ == '__main__':
             print('Example: mark-done 2')
         except ValueError:
             _number_notice()
+    elif args[0] == 'clear':
+        clear_tasks()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
