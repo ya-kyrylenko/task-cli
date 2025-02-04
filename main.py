@@ -6,6 +6,7 @@ import sys
 from datetime import datetime
 
 TASK_FILE_NAME = 'tasks.json'
+VALID_STATUSES = {'todo', 'in-progress', 'done'}
 
 def _save_to_file(content):
     with open(TASK_FILE_NAME, 'w') as out_file:
@@ -77,12 +78,11 @@ def _number_notice():
     print("Error: ID must be a number.")
 
 def list_tasks(tasks, status = None):
-    statuses = ['todo', 'in-progress', 'done']
-    if status and status in statuses:
+    if status and status in VALID_STATUSES:
         tasks = [task for task in tasks if task["status"] == status]
     elif status:
         print(f"Status should match one of this: {statuses}")
-        exit()
+        return
     for task in tasks:
         print(f"Task id:{task["id"]}, description: '{task["desc"]}', status: {task['status']}")
 
