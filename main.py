@@ -97,7 +97,7 @@ if __name__ == '__main__':
     if len(args) == 0:
         print("Please add some info, example: add 'Task description'")
         print("You also can update, delete, list tasks")
-    elif len(args) > 1:
+    elif len(args) >= 1:
         if args[0] == 'add':
             try:
                 task_message = args[1]
