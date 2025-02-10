@@ -4,13 +4,10 @@ import json
 import os
 import sys
 from datetime import datetime
-
-TASK_FILE_NAME = 'tasks.json'
-VALID_STATUSES = {'todo', 'in-progress', 'done'}
-
-def _save_to_file(content):
-    with open(TASK_FILE_NAME, 'w') as out_file:
-        json.dump(content, out_file, indent=4)
+from decorators import auto_save
+from decorators import clear_tasks
+from config import TASK_FILE_NAME
+from config import VALID_STATUSES
 
 def read_tasks(file_name):
     if os.path.exists(file_name):
@@ -23,6 +20,7 @@ def read_tasks(file_name):
 def _get_next_id(tasks):
     return max((task["id"] for task in tasks), default=0) + 1
 
+@auto_save
 def add_new_task(tasks, description, status = 'todo'):
     date_time = _get_time()
 
@@ -34,34 +32,33 @@ def add_new_task(tasks, description, status = 'todo'):
         'updatedAt': date_time
     }
     tasks.append(new_task)
-    _save_to_file(tasks)
     print(f"Task added successfully (ID: {new_task['id']})")
 
+@auto_save
 def update_task(tasks, id, new_desc):
     task = _find_task_by_id(tasks, id)
     if task:
         task['desc'] = new_desc
         task['updatedAt'] = _get_time()
         print(f"Task updated successfully (ID: {id})")
-        _save_to_file(tasks)
     else:
         _no_id_notice(id)
 
+@auto_save
 def delete_task(tasks, id):
     task = _find_task_by_id(tasks, id)
     if task:
         tasks.remove(task)
         print(f"Task removed successfully (ID: {id})")
-        _save_to_file(tasks)
     else:
         _no_id_notice(id)
 
+@auto_save
 def change_status(tasks, status, id):
     task = _find_task_by_id(tasks, id)
     if task:
         task['status'] = status
         print(f'Task (ID: {id}) changed status to "{status}" successfully')
-        _save_to_file(tasks)
     else:
         _no_id_notice(id)
 
@@ -85,10 +82,6 @@ def list_tasks(tasks, status = None):
         return
     for task in tasks:
         print(f"Task id:{task["id"]}, description: '{task["desc"]}', status: {task['status']}")
-
-def clear_tasks():
-    _save_to_file([])
-    print("Tasks file cleared")
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
