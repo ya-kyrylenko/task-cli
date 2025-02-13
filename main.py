@@ -66,7 +66,7 @@ def _find_task_by_id(tasks, id):
     return next((task for task in tasks if task['id'] == id), None)
 
 def _get_time():
-    return datetime.now().isoformat()
+    return datetime.now().isoformat('#', 'seconds')
 
 def _no_id_notice(id):
     print(f"There are no task with ID {id}")
