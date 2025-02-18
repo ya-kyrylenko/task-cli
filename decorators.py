@@ -3,8 +3,8 @@ import functools
 import copy
 from config import TASK_FILE_NAME
 
-def _save_to_file(content):
-    with open(TASK_FILE_NAME, 'w') as out_file:
+def _save_to_file(content, filename=TASK_FILE_NAME):
+    with open(filename, 'w') as out_file:
         json.dump(content, out_file, indent=4)
 
 def auto_save(func):
