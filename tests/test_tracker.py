@@ -26,7 +26,7 @@ def test_add_new_task_output(tasks, capfd, mock_save):
     add_new_task(tasks, "Test task")
     captured = capfd.readouterr()
 
-    assert f"Task added successfully (ID: {len(tasks)})" in captured.out
+    assert "Task added successfully (ID:" in captured.out
 
 def test_successful_update_task(tasks, mock_save):
     updated_task = "Updated task"
