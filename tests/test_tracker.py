@@ -46,7 +46,6 @@ def test_unsuccessful_update_task(tasks, capfd, mock_save):
     captured = capfd.readouterr()
 
     assert f"There are no task with ID {wrong_id}" in captured.out
-    assert False
 
 def test_update_task_save_to_file_not_called(tasks, mock_save):
     update_task(tasks, 99, "Test task")
