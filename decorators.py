@@ -9,11 +9,11 @@ def _save_to_file(content, filename=TASK_FILE_NAME):
 
 def auto_save(func):
     @functools.wraps(func)
-    def wrapper(tasks, *args, **kwargs):
-        tasks_before = copy.deepcopy(tasks)
-        result = func(tasks, *args, **kwargs)
-        if tasks_before != tasks:
-            _save_to_file(tasks)
+    def wrapper(self, *args, **kwargs):
+        tasks_before = copy.deepcopy(self.tasks)
+        result = func(self, *args, **kwargs)
+        if tasks_before != self.tasks:
+            _save_to_file(self.tasks)
         return result
     return wrapper
 

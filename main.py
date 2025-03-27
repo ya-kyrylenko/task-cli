@@ -1,72 +1,10 @@
 #!/usr/bin/env python3
 
-import json
-import os
 import sys
-from datetime import datetime
-from decorators import auto_save
 from decorators import clear_tasks
 from config import TASK_FILE_NAME
-from config import VALID_STATUSES
-
-def read_tasks(file_name):
-    if os.path.exists(file_name):
-        with open(file_name, 'r') as file:
-            data = json.load(file)
-        return data
-    else:
-        return []
-
-def _get_next_id(tasks):
-    return max((task["id"] for task in tasks), default=0) + 1
-
-@auto_save
-def add_new_task(tasks, description, status = 'todo'):
-    date_time = _get_time()
-
-    new_task = {
-        'id': _get_next_id(tasks),
-        'desc': description,
-        'status': status,
-        'createdAt': date_time,
-        'updatedAt': date_time
-    }
-    tasks.append(new_task)
-    print(f"Task added successfully (ID: {new_task['id']})")
-
-@auto_save
-def update_task(tasks, id, new_desc):
-    task = _find_task_by_id(tasks, id)
-    if task:
-        task['desc'] = new_desc
-        task['updatedAt'] = _get_time()
-        print(f"Task updated successfully (ID: {id})")
-    else:
-        _no_id_notice(id)
-
-@auto_save
-def delete_task(tasks, id):
-    task = _find_task_by_id(tasks, id)
-    if task:
-        tasks.remove(task)
-        print(f"Task removed successfully (ID: {id})")
-    else:
-        _no_id_notice(id)
-
-@auto_save
-def change_status(tasks, status, id):
-    task = _find_task_by_id(tasks, id)
-    if task:
-        task['status'] = status
-        print(f'Task (ID: {id}) changed status to "{status}" successfully')
-    else:
-        _no_id_notice(id)
-
-def _find_task_by_id(tasks, id):
-    return next((task for task in tasks if task['id'] == id), None)
-
-def _get_time():
-    return datetime.now().isoformat('#', 'seconds')
+from task_manager import TaskManager
+import constants
 
 def _no_id_notice(id):
     print(f"There are no task with ID {id}")
@@ -74,19 +12,10 @@ def _no_id_notice(id):
 def _number_notice():
     print("Error: ID must be a number.")
 
-def list_tasks(tasks, status = None):
-    if status and status in VALID_STATUSES:
-        tasks = [task for task in tasks if task["status"] == status]
-    elif status:
-        print(f"Status should match one of this: {statuses}")
-        return
-    for task in tasks:
-        print(f"Task id:{task["id"]}, description: '{task["desc"]}', status: {task['status']}")
-
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     args = sys.argv[1:]
-    tasks = read_tasks(TASK_FILE_NAME)
+    task_manager = TaskManager(TASK_FILE_NAME)
     if len(args) == 0:
         print("Please add some info, example: add 'Task description'")
         print("You also can update, delete, list tasks")
@@ -94,7 +23,8 @@ if __name__ == '__main__':
         if args[0] == 'add':
             try:
                 task_message = args[1]
-                add_new_task(tasks, task_message)
+                task_id = task_manager.add_new_task(task_message)
+                print(constants.TASK_ADDED.format(task_id))
             except IndexError:
                 print("After 'add' command you should specify task message")
                 print("Example: add 'Visit grandma'")
@@ -102,14 +32,18 @@ if __name__ == '__main__':
         elif args[0] == 'list':
             if len(args) > 1:
                 status = args[1]
-                list_tasks(tasks, status)
+                task_manager.list_tasks(status)
             else:
-                list_tasks(tasks)
+                task_manager.list_tasks()
         elif args[0] == 'update':
             try:
                 index = int(args[1])
                 description = args[2]
-                update_task(tasks, index, description)
+                task_id = task_manager.update_task(index, description)
+                if task_id:
+                    print(constants.TASK_UPDATED.format(task_id))
+                else:
+                    print(constants.TASK_NOT_FOUND.format(index))
             except ValueError:
                 print("Error: ID must be a number.")
             except IndexError:
@@ -118,7 +52,11 @@ if __name__ == '__main__':
         elif args[0] == 'delete':
             try:
                 index = int(args[1])
-                delete_task(tasks, index)
+                task_id = task_manager.delete_task(index)
+                if task_id:
+                    print(constants.TASK_REMOVED.format(task_id))
+                else:
+                    print(constants.TASK_NOT_FOUND.format(index))
             except ValueError:
                 _number_notice()
             except IndexError:
@@ -128,7 +66,8 @@ if __name__ == '__main__':
             try:
                 _, _, status = args[0].partition('-')
                 id = int(args[1])
-                change_status(tasks, status, id)
+                task_id = task_manager.change_status(status, id)
+                print(constants.TASK_STATUS_CHANGED.format(task_id, status))
             except IndexError:
                 print("After 'mark-in-progress' or 'mark-done' commands you should specify desired id")
                 print('Example: mark-done 2')
