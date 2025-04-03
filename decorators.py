@@ -1,11 +1,6 @@
-import json
 import functools
 import copy
-from config import TASK_FILE_NAME
-
-def _save_to_file(content, filename=TASK_FILE_NAME):
-    with open(filename, 'w') as out_file:
-        json.dump(content, out_file, indent=4)
+from file_utils import save_to_file
 
 def auto_save(func):
     @functools.wraps(func)
@@ -13,10 +8,10 @@ def auto_save(func):
         tasks_before = copy.deepcopy(self.tasks)
         result = func(self, *args, **kwargs)
         if tasks_before != self.tasks:
-            _save_to_file(self.tasks)
+            save_to_file(self.tasks, self.file_name)
         return result
     return wrapper
 
 def clear_tasks():
-    _save_to_file([])
+    save_to_file([])
     print("Tasks file cleared")

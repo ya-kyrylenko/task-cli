@@ -1,21 +1,12 @@
-import json
-import os
 from datetime import datetime
 from decorators import auto_save
+from file_utils import read_tasks
 from config import VALID_STATUSES
 
 class TaskManager:
     def __init__(self, file_name):
         self.file_name = file_name
-        self.tasks = self._read_tasks()
-
-    def _read_tasks(self):
-        if os.path.exists(self.file_name):
-            with open(self.file_name, 'r') as file:
-                data = json.load(file)
-            return data
-        else:
-            return []
+        self.tasks = read_tasks(self.file_name)
 
     def _get_next_id(self):
         return max((task["id"] for task in self.tasks), default=0) + 1
