@@ -65,9 +65,12 @@ if __name__ == '__main__':
         elif args[0] in ['mark-in-progress', 'mark-done']:
             try:
                 _, _, status = args[0].partition('-')
-                id = int(args[1])
-                task_id = task_manager.change_status(status, id)
-                print(constants.TASK_STATUS_CHANGED.format(task_id, status))
+                index = int(args[1])
+                task_id = task_manager.change_status(status, index)
+                if task_id:
+                    print(constants.TASK_STATUS_CHANGED.format(task_id, status))
+                else:
+                    print(constants.TASK_NOT_FOUND.format(index))
             except IndexError:
                 print("After 'mark-in-progress' or 'mark-done' commands you should specify desired id")
                 print('Example: mark-done 2')
