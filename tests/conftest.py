@@ -1,6 +1,12 @@
 import pytest
 import copy
+
 from unittest.mock import patch
+from task_manager import TaskManager
+
+@pytest.fixture
+def test_data():
+    return [{"id": 1, "title": "Test Task"}]
 
 @pytest.fixture
 def sample_tasks():
@@ -34,5 +40,14 @@ def tasks(sample_tasks):
 
 @pytest.fixture
 def mock_save():
-    with patch("decorators._save_to_file") as mock:
+    with patch("decorators.save_to_file") as mock:
         yield mock
+
+@pytest.fixture
+def test_path(tmp_path):
+    return tmp_path / "test_tasks.json"
+
+@pytest.fixture
+def manager_with_tasks(test_path, tasks):
+    with patch("task_manager.read_tasks", return_value=tasks):
+        return TaskManager(str(test_path))
